@@ -45,6 +45,8 @@ jobs:
         RESOURCE_GROUP: ${{ secrets.AZURE_TF_STATE_RESOURCE_GROUP }}
         STORAGE_ACCOUNT: ${{ secrets.AZURE_TF_STATE_STORAGE_ACCOUNT }}
         CONTAINER_NAME: ${{ secrets.AZURE_TF_STATE_CONTAINER_NAME }}
+        TF_VAR_mssqlserver_adm_login: ${{ secrets.AZURE_SQLSERVER_ADM_LOGIN }}
+        TF_VAR_mssqlserver_adm_password: ${{ secrets.AZURE_SQLSERVER_ADM_PASSWORD }}
       run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
 
     - name: Terraform Validate

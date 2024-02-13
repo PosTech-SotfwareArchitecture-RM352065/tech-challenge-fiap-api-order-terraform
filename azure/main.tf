@@ -6,7 +6,7 @@ terraform {
     }
   }
   backend "azurerm" {
-    key                  = "terraform-database.tfstate"
+    key = "terraform-database.tfstate"
   }
 }
 
@@ -24,7 +24,7 @@ resource "azurerm_resource_group" "resource_group" {
 }
 
 # NOTE: the Name used for Redis needs to be globally unique
-resource "azurerm_redis_cache" "sanduba-carrinho-database" {
+resource "azurerm_redis_cache" "sanduba_carrinho_database" {
   name                          = "sanduba-carrinho-database-redis"
   location                      = azurerm_resource_group.resource_group.location
   resource_group_name           = azurerm_resource_group.resource_group.name
@@ -34,4 +34,38 @@ resource "azurerm_redis_cache" "sanduba-carrinho-database" {
   enable_non_ssl_port           = false
   public_network_access_enabled = true
   redis_version                 = 6
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+resource "azurerm_mssql_server" "sqlserver" {
+  name                         = "sanduba-main-database-sqlserver"
+  resource_group_name          = azurerm_resource_group.resource_group.name
+  location                     = azurerm_resource_group.resource_group.location
+  version                      = "12.0"
+  administrator_login          = var.mssqlserver_adm_login
+  administrator_login_password = var.mssqlserver_adm_password
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+resource "azurerm_mssql_database" "sanduba_main_database" {
+  name                 = "sanduba-main-database"
+  server_id            = azurerm_mssql_server.sqlserver.id
+  collation            = "SQL_Latin1_General_CP1_CI_AS"
+  sku_name             = "Basic"
+  max_size_gb          = 2
+  read_scale           = false
+  zone_redundant       = false
+  geo_backup_enabled   = false
+  create_mode          = "Default"
+  storage_account_type = "Local"
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
 }
