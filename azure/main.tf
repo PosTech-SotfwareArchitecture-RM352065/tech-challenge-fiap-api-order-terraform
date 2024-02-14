@@ -6,6 +6,9 @@ terraform {
     }
   }
   backend "azurerm" {
+    resource_group_name  = "fiap-tech-challenge-main-group"
+    storage_account_name = "sandubaterraform"
+    container_name       = "sanduba-terraform-storage-container"
     key = "terraform-database.tfstate"
   }
 }
