@@ -12,6 +12,7 @@ env:
 
 jobs:
   azure_terraform:
+    permissions: write-all
     name: 'Azure - Terraform apply'
     runs-on: ubuntu-latest
 
