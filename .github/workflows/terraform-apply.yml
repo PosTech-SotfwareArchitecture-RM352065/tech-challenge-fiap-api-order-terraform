@@ -8,7 +8,7 @@ on:
 env:
   TF_LOG: INFO
   GITHUB_OWNER: ${{ github.repository_owner }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
 
 jobs:
   azure_terraform:

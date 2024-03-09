@@ -8,14 +8,14 @@ on:
 env:
   TF_LOG: INFO
   GITHUB_OWNER: ${{ github.repository_owner }} 
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
 
 jobs:
   azure_terraform:
-    permissions: write-all
     name: 'Azure - Terraform deploy'
     runs-on: ubuntu-latest
-
+    permissions: write-all
+    
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     # Set the working directory to main for the config files
     defaults:
