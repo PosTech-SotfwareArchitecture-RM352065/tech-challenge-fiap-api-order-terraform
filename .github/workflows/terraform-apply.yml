@@ -52,6 +52,6 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }}
         ARM_TENANT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SUBSCRIPTION_ID }}
-        TF_VAR_mssqlserver_adm_login: ${{ secrets.AZURE_SQLSERVER_ADM_LOGIN }}
-        TF_VAR_mssqlserver_adm_password: ${{ secrets.AZURE_SQLSERVER_ADM_PASSWORD }}
+        TF_VAR_main_sqlserver_adm_login: ${{ secrets.AZURE_SQLSERVER_ADM_LOGIN }}
+        TF_VAR_main_sqlserver_adm_password: ${{ secrets.AZURE_SQLSERVER_ADM_PASSWORD }}
       run: terraform apply -auto-approve
