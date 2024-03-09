@@ -5,6 +5,7 @@ on: [pull_request, workflow_dispatch]
 env:
   TF_LOG: INFO
   GITHUB_OWNER: ${{ github.repository_owner }} 
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   azure_terraform:
