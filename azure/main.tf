@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.90.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
   backend "azurerm" {
     key = "terraform-database.tfstate"
@@ -40,13 +44,13 @@ resource "azurerm_redis_cache" "sanduba_carrinho_database" {
   }
 }
 
-resource "azurerm_mssql_server" "sqlserver" {
+resource "azurerm_sql_server" "sqlserver" {
   name                         = "sanduba-main-database-sqlserver"
   resource_group_name          = azurerm_resource_group.resource_group.name
   location                     = azurerm_resource_group.resource_group.location
   version                      = "12.0"
-  administrator_login          = var.mssqlserver_adm_login
-  administrator_login_password = var.mssqlserver_adm_password
+  administrator_login          = var.main_sqlserver_adm_login
+  administrator_login_password = var.main_sqlserver_adm_password
 
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
