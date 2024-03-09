@@ -4,10 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.90.0"
     }
-    github = {
-      source  = "integrations/github"
-      version = "~> 6.0"
-    }
+    # github = {
+    #   source  = "integrations/github"
+    #   version = "~> 6.0"
+    # }
   }
   backend "azurerm" {
     key = "terraform-database.tfstate"
@@ -28,8 +28,8 @@ resource "azurerm_resource_group" "resource_group" {
 }
 
 # NOTE: the Name used for Redis needs to be globally unique
-resource "azurerm_redis_cache" "sanduba_carrinho_database" {
-  name                          = "sanduba-carrinho-database-redis"
+resource "azurerm_redis_cache" "sanduba_cart_database" {
+  name                          = "sanduba-cart-database-redis"
   location                      = azurerm_resource_group.resource_group.location
   resource_group_name           = azurerm_resource_group.resource_group.name
   capacity                      = 0
@@ -45,7 +45,7 @@ resource "azurerm_redis_cache" "sanduba_carrinho_database" {
 }
 
 resource "azurerm_sql_server" "sqlserver" {
-  name                         = "sanduba-main-database-sqlserver"
+  name                         = "sanduba-main-sqlserver"
   resource_group_name          = azurerm_resource_group.resource_group.name
   location                     = azurerm_resource_group.resource_group.location
   version                      = "12.0"
@@ -57,17 +57,16 @@ resource "azurerm_sql_server" "sqlserver" {
   }
 }
 
-resource "azurerm_mssql_database" "sanduba_main_database" {
-  name                 = "sanduba-main-database"
-  server_id            = azurerm_mssql_server.sqlserver.id
-  collation            = "SQL_Latin1_General_CP1_CI_AS"
-  sku_name             = "Basic"
-  max_size_gb          = 2
-  read_scale           = false
-  zone_redundant       = false
-  geo_backup_enabled   = false
-  create_mode          = "Default"
-  storage_account_type = "Local"
+resource "azurerm_sql_database" "sanduba_main_database" {
+  name                = "sanduba-main-database"
+  resource_group_name = azurerm_sql_server.sqlserver.resource_group_name
+  location            = azurerm_sql_server.sqlserver.location
+  server_name         = azurerm_sql_server.sqlserver.name
+  collation           = "SQL_Latin1_General_CP1_CI_AS"
+  max_size_gb         = 2
+  read_scale          = false
+  zone_redundant      = false
+  create_mode         = "Default"
 
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
