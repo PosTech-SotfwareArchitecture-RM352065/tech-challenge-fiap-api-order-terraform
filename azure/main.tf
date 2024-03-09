@@ -78,13 +78,13 @@ resource "azurerm_mssql_database" "sanduba_main_database" {
 }
 
 resource "github_actions_organization_secret" "fiap_main_database_connectionstring" {
-  secret_name     = "MAIN_DATABASE_CONNECTION_STRING"
+  secret_name     = "APP_MAIN_DATABASE_CONNECTION_STRING"
   visibility      = "all"
   plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_main_database.name};Persist Security Info=False;User ID=${var.main_sqlserver_adm_login};Password=${var.main_sqlserver_adm_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
 
 resource "github_actions_organization_secret" "fiap_cart_database_connectionstring" {
-  secret_name     = "CART_DATABASE_CONNECTION_STRING"
+  secret_name     = "APP_CART_DATABASE_CONNECTION_STRING"
   visibility      = "all"
   plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
 }
