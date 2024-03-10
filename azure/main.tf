@@ -60,6 +60,13 @@ resource "azurerm_mssql_server" "sqlserver" {
   }
 }
 
+resource "azurerm_mssql_firewall_rule" "sqlserver_allow_azure_services_rule" {
+  name             = "Allow access to Azure services"
+  server_id        = azurerm_mssql_server.sqlserver.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
 resource "azurerm_mssql_database" "sanduba_main_database" {
   name                 = "sanduba-main-database"
   server_id            = azurerm_mssql_server.sqlserver.id
