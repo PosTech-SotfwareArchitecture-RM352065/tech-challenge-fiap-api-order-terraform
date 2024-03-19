@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: Azure/login@v1
+    - uses: Azure/login@v2
       with:
         creds: '{"clientId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT_ID }}"}'
     - uses: azure/sql-action@v2.2.1
