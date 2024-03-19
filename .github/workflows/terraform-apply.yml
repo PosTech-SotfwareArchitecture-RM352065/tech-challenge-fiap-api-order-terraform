@@ -61,7 +61,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    name: Deploy
+    name: Main Database
     uses: ./.github/workflows/deploy-main-database.yml
     secrets: inherit
     needs: [azure_terraform]
