@@ -1,4 +1,5 @@
 name: Release database
+
 on: [workflow_call, workflow_dispatch ] 
 
 jobs:
@@ -9,8 +10,8 @@ jobs:
     - uses: azure/sql-action@v2.2.1
       with:        
         connection-string: ${{ secrets.APP_MAIN_DATABASE_CONNECTION_STRING }}
-        path: ./src/SandubaDatabase/MainDatabase/MainDatabase.sqlproj
+        path: './src/SandubaDatabase/MainDatabase/MainDatabase.sqlproj'
         action: 'publish'
-        build-arguments: '-c Release'                 
+        # build-arguments: '-c Release'                 
         # arguments: '/p:DropObjectsNotInSource=true'  
         
