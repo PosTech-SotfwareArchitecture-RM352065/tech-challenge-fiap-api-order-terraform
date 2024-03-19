@@ -61,7 +61,7 @@ CREATE PROCEDURE dbo.Sp_AdicionaCliente
 
 AS
 BEGIN
-    INSERT INTO dbo.Cliente (Id, Tipo, Cpf, Nome, Email, Senha)
+    INSERT INTO dbo.Clientes (Id, Tipo, Cpf, Nome, Email, Senha)
     VALUES(@Id, @Tipo, @Cpf, @Nome, @Email, HASHBYTES('SHA2_512', @Senha+CAST(@Id AS NVARCHAR(36))))
 END
 GO
@@ -69,17 +69,17 @@ GO
 CREATE PROCEDURE dbo.Sp_ValidaLogin
     @Cpf            VARCHAR(11)
 ,   @Senha          NVARCHAR(50)
-,   @Valido         BIT OUTPUT
+,   @Id             UNIQUEIDENTIFIER OUTPUT
 
 AS
 BEGIN
 
     SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
 
-    SET @Valido 
-        = CASE WHEN EXISTS (SELECT *
-                              FROM dbo.Clientes 
-                             WHERE Cpf = @Cpf
-                               AND Senha = HASHBYTES('SHA2_512', @Senha+CAST(Id AS NVARCHAR(36)))) THEN 1 ELSE 0 END
+    SET @Id
+        = (SELECT TOP 1 Id
+             FROM dbo.Clientes 
+            WHERE Cpf = @Cpf
+              AND Senha = HASHBYTES('SHA2_512', @Senha+CAST(Id AS NVARCHAR(36))))
 END
 GO
