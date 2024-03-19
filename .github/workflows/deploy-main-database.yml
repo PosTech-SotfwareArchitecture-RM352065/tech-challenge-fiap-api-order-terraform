@@ -6,12 +6,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - uses: Azure/login@v1
+      with:
+        creds: '{"clientId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }}","tenantId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT_ID }}"}'
     - uses: azure/sql-action@v2.2.1
       with:        
-        connection-string: ${{ secrets.APP_MAIN_DATABASE_CONNECTION_STRING }}
-        path: './src/SandubaDatabase/MainDatabase/MainDatabase.sqlproj'
-        action: 'publish'
-        # build-arguments: '-c Release'                 
-        # arguments: '/p:DropObjectsNotInSource=true'  
-        
+        connection-string: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
+        path: './sqlscripts/*.sql'
