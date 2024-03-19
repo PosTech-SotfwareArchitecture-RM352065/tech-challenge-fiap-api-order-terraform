@@ -58,3 +58,10 @@ jobs:
         TF_VAR_main_sqlserver_adm_login: ${{ secrets.AZURE_SQLSERVER_ADM_LOGIN }}
         TF_VAR_main_sqlserver_adm_password: ${{ secrets.AZURE_SQLSERVER_ADM_PASSWORD }}
       run: terraform apply -auto-approve
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    name: Deploy
+    uses: ./.github/workflows/deploy-main-database.yml
+    secrets: inherit
+    needs: [azure_terraform]
