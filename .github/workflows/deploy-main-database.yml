@@ -4,15 +4,9 @@ on: [workflow_call, workflow_dispatch ]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 4.8.x
-      
     - uses: azure/sql-action@v2.2.1
       with:        
         connection-string: ${{ secrets.APP_MAIN_DATABASE_CONNECTION_STRING }}
