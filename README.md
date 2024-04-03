@@ -25,7 +25,3 @@ Já a utilização de um NoSQL (Não relacioal) como banco para armazenar os dad
 * Pouca criticidade dos dados: por não se tratar de dados transacionais, caso o dado se perca ou expire (abandono do carrinho) não seria um grande problema, visto que o cliente ainda não finalizou a compra.
 
 Conforme a solução evolua, podemos avaliar a utilização de outros NoSQL (do tipo documento por exemplo) para flexibilizar integração com outros provedores de pagamentos, além do mercado pago, onde cada provedor possui seu formato de comunicação e dados transmitidos. Vale também a utilzação de um banco de séries temporais para analise do consumo dos usuário e prever promoções ou pesquisas feitas e não concluidas.
-
-## Payment Database
-
-Para armazenamento dos dados de pagamento, assim como, retornos dos provedores de pagamento a escolha foi de um banco de dados NoSQL do tipo documento. A escolha foi devido a flexibilidade ao diferentes tipos de pagamentos que a plataorma pretende receber
