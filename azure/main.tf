@@ -4,21 +4,32 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.90.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.1"
+    }
     github = {
       source  = "integrations/github"
       version = "~> 6.0"
     }
   }
   backend "azurerm" {
-    key = "terraform-database.tfstate"
+    key = "terraform-order.tfstate"
   }
 }
 
 provider "azurerm" {
   features {}
 }
+
+# provider "github" {
+# }
+
+provider "random" {
+}
+
 resource "azurerm_resource_group" "resource_group" {
-  name       = "fiap-tech-challenge-database-group"
+  name       = "fiap-tech-challenge-order-group"
   location   = "eastus"
   managed_by = "fiap-tech-challenge-main-group"
 
@@ -27,33 +38,25 @@ resource "azurerm_resource_group" "resource_group" {
   }
 }
 
+resource "random_password" "sqlserver_password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "random_uuid" "sqlserver_user" {
+}
+
 provider "github" {
 }
 
-# NOTE: the Name used for Redis needs to be globally unique
-resource "azurerm_redis_cache" "sanduba_cart_database" {
-  name                          = "sanduba-cart-database-redis"
-  location                      = azurerm_resource_group.resource_group.location
-  resource_group_name           = azurerm_resource_group.resource_group.name
-  capacity                      = 0
-  family                        = "C"
-  sku_name                      = "Basic"
-  enable_non_ssl_port           = false
-  public_network_access_enabled = true
-  redis_version                 = 6
-
-  tags = {
-    environment = azurerm_resource_group.resource_group.tags["environment"]
-  }
-}
-
 resource "azurerm_mssql_server" "sqlserver" {
-  name                         = "sanduba-main-sqlserver"
+  name                         = "sanduba-order-sqlserver"
   resource_group_name          = azurerm_resource_group.resource_group.name
   location                     = azurerm_resource_group.resource_group.location
   version                      = "12.0"
-  administrator_login          = var.main_sqlserver_adm_login
-  administrator_login_password = var.main_sqlserver_adm_password
+  administrator_login          = random_uuid.sqlserver_user.result
+  administrator_login_password = random_password.sqlserver_password.result
 
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
@@ -67,8 +70,8 @@ resource "azurerm_mssql_firewall_rule" "sqlserver_allow_azure_services_rule" {
   end_ip_address   = "0.0.0.0"
 }
 
-resource "azurerm_mssql_database" "sanduba_main_database" {
-  name                 = "sanduba-main-database"
+resource "azurerm_mssql_database" "sanduba_order_database" {
+  name                 = "sanduba-order-database"
   server_id            = azurerm_mssql_server.sqlserver.id
   collation            = "SQL_Latin1_General_CP1_CI_AS"
   sku_name             = "Basic"
@@ -84,14 +87,8 @@ resource "azurerm_mssql_database" "sanduba_main_database" {
   }
 }
 
-resource "github_actions_organization_secret" "fiap_main_database_connectionstring" {
-  secret_name     = "APP_MAIN_DATABASE_CONNECTION_STRING"
+resource "github_actions_organization_secret" "fiap_order_database_connectionstring" {
+  secret_name     = "APP_ORDER_DATABASE_CONNECTION_STRING"
   visibility      = "all"
-  plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_main_database.name};Persist Security Info=False;User ID=${var.main_sqlserver_adm_login};Password=${var.main_sqlserver_adm_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-}
-
-resource "github_actions_organization_secret" "fiap_cart_database_connectionstring" {
-  secret_name     = "APP_CART_DATABASE_CONNECTION_STRING"
-  visibility      = "all"
-  plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
+  plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user};Password=${random_password.sqlserver_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }

@@ -12,5 +12,5 @@ jobs:
         creds: '{"clientId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT_ID }}"}'
     - uses: azure/sql-action@v2.2.1
       with:        
-        connection-string: ${{ secrets.APP_MAIN_DATABASE_CONNECTION_STRING }}
+        connection-string: ${{ secrets.APP_ORDER_DATABASE_CONNECTION_STRING }}
         path: './sqlscripts/*.sql'
