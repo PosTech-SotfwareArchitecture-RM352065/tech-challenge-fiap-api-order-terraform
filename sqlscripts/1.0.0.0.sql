@@ -12,11 +12,19 @@ CREATE TABLE Orders (
 GO
 
 CREATE TABLE OrderItems (
-    OrderId     UNIQUEIDENTIFIER    NOT NULL
-,   Code        INT                 NOT NULL
-,   ProductId   UNIQUEIDENTIFIER    NOT NULL
-,   UnitPrice   DECIMAL(18, 2)      NOT NULL
+    OrderId             UNIQUEIDENTIFIER    NOT NULL
+,   Code                INT                 NOT NULL
+,   ProductId           UNIQUEIDENTIFIER    NOT NULL
+,   ProductUnitPrice    DECIMAL(18, 2)      NOT NULL
 ,   CONSTRAINT Pk_OrderItems PRIMARY KEY NONCLUSTERED (OrderId, Code)
 ,   CONSTRAINT Fk1_OrderItems FOREIGN KEY (OrderId) REFERENCES Orders (Id)
+)
+
+CREATE TABLE OrderPayments (
+    Id                  UNIQUEIDENTIFIER    NOT NULL
+,   OrderId             UNIQUEIDENTIFIER    NOT NULL
+,   [Status]            VARCHAR(10)         NOT NULL DEFAULT("Created")
+,   CONSTRAINT Pk_OrderPayments PRIMARY KEY NONCLUSTERED (Id)
+,   CONSTRAINT Fk1_OrderPayments FOREIGN KEY (OrderId) REFERENCES Orders (Id)
 )
 GO
