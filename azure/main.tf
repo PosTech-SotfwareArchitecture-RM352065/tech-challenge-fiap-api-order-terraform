@@ -54,12 +54,7 @@ resource "azurerm_mssql_server" "sqlserver" {
   version                      = "12.0"
   administrator_login          = random_uuid.sqlserver_user.result
   administrator_login_password = random_password.sqlserver_password.result
-
-  azuread_administrator {
-    login_username = var.azuread_admin_login_name
-    object_id      = var.azuread_admin_id
-  }
-
+  
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
   }
@@ -89,8 +84,14 @@ resource "azurerm_mssql_database" "sanduba_order_database" {
   }
 }
 
-resource "github_actions_organization_secret" "order_database_connectionstring" {
+resource "github_actions_organization_secret" "database_connectionstring" {
   secret_name     = "APP_ORDER_DATABASE_CONNECTION_STRING"
   visibility      = "all"
   plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
+resource "github_actions_organization_variable" "var_database_connectionstring" {
+  variable_name     = "VAR_APP_ORDER_DATABASE_CONNECTION_STRING"
+  visibility      = "all"
+  value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
