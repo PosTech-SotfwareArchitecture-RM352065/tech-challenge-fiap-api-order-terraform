@@ -1,5 +1,7 @@
 ﻿IF(OBJECT_ID('OrderItems') IS NOT NULL) DROP TABLE OrderItems
+IF(OBJECT_ID('OrderPayments') IS NOT NULL) DROP TABLE OrderPayments
 IF(OBJECT_ID('Orders') IS NOT NULL) DROP TABLE Orders
+
 GO
 
 CREATE TABLE Orders (
