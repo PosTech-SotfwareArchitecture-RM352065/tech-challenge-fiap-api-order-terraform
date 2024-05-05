@@ -49,9 +49,6 @@ resource "random_password" "sqlserver_password" {
 resource "random_uuid" "sqlserver_user" {
 }
 
-provider "github" {
-}
-
 resource "azurerm_mssql_server" "sqlserver" {
   name                         = "sanduba-order-sqlserver"
   resource_group_name          = azurerm_resource_group.resource_group.name
