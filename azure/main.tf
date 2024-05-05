@@ -22,11 +22,13 @@ provider "azurerm" {
   features {}
 }
 
-# provider "github" {
-# }
+provider "github" {
+}
 
 provider "random" {
 }
+
+data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "resource_group" {
   name       = "fiap-tech-challenge-order-group"
@@ -63,6 +65,14 @@ resource "azurerm_mssql_server" "sqlserver" {
   }
 }
 
+resource "azurerm_sql_active_directory_administrator" "entra_access_sqlserver" {
+  server_name         = azurerm_sql_server.sqlserver.name
+  resource_group_name = azurerm_resource_group.resource_group.name
+  login               = "sqladmin"
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  object_id           = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_mssql_firewall_rule" "sqlserver_allow_azure_services_rule" {
   name             = "Allow access to Azure services"
   server_id        = azurerm_mssql_server.sqlserver.id
@@ -87,7 +97,7 @@ resource "azurerm_mssql_database" "sanduba_order_database" {
   }
 }
 
-resource "github_actions_organization_secret" "fiap_order_database_connectionstring" {
+resource "github_actions_organization_secret" "order_database_connectionstring" {
   secret_name     = "APP_ORDER_DATABASE_CONNECTION_STRING"
   visibility      = "all"
   plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"

@@ -14,8 +14,8 @@ GO
 CREATE TABLE OrderItems (
     OrderId     UNIQUEIDENTIFIER    NOT NULL
 ,   Code        INT                 NOT NULL
-,   ProdutoId   UNIQUEIDENTIFIER    NOT NULL
-,   Preco       DECIMAL(18, 2)      NOT NULL
+,   ProductId   UNIQUEIDENTIFIER    NOT NULL
+,   UnitPrice   DECIMAL(18, 2)      NOT NULL
 ,   CONSTRAINT Pk_OrderItems PRIMARY KEY NONCLUSTERED (OrderId, Code)
 ,   CONSTRAINT Fk1_OrderItems FOREIGN KEY (OrderId) REFERENCES Orders (Id)
 )
