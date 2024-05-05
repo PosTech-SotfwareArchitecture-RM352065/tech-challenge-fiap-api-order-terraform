@@ -6,6 +6,8 @@ env:
   TF_LOG: INFO
   GITHUB_OWNER: ${{ github.repository_owner }} 
   GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+  TF_VAR_azuread_admin_login_name : ${{ secrets.AZURE_TF_LOGIN }}
+  TF_VAR_azuread_admin_id : ${{ secrets.AZURE_TF_LOGIN_ID }}
 
 jobs:
   azure_terraform:

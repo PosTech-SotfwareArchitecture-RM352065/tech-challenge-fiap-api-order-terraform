@@ -28,8 +28,6 @@ provider "github" {
 provider "random" {
 }
 
-data "azurerm_client_config" "current" {}
-
 resource "azurerm_resource_group" "resource_group" {
   name       = "fiap-tech-challenge-order-group"
   location   = "eastus"
@@ -57,17 +55,14 @@ resource "azurerm_mssql_server" "sqlserver" {
   administrator_login          = random_uuid.sqlserver_user.result
   administrator_login_password = random_password.sqlserver_password.result
 
+  azuread_administrator {
+    login_username = var.azuread_admin_login_name
+    object_id      = var.azuread_admin_id
+  }
+
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
   }
-}
-
-resource "azurerm_sql_active_directory_administrator" "entra_access_sqlserver" {
-  server_name         = azurerm_mssql_server.sqlserver.name
-  resource_group_name = azurerm_resource_group.resource_group.name
-  login               = "sqladmin"
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  object_id           = data.azurerm_client_config.current.object_id
 }
 
 resource "azurerm_mssql_firewall_rule" "sqlserver_allow_azure_services_rule" {
