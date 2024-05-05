@@ -23,7 +23,7 @@ CREATE TABLE Payments (
     Id                  UNIQUEIDENTIFIER    NOT NULL
 ,   OrderId             UNIQUEIDENTIFIER    NOT NULL
 ,   [Status]            VARCHAR(10)         NOT NULL
-,   CONSTRAINT Pk_OrderPayments PRIMARY KEY NONCLUSTERED (Id)
-,   CONSTRAINT Fk1_OrderPayments FOREIGN KEY (OrderId) REFERENCES Orders (Id)
+,   CONSTRAINT Pk_Payments PRIMARY KEY NONCLUSTERED (Id)
+,   CONSTRAINT Fk1_Payments FOREIGN KEY (OrderId) REFERENCES Orders (Id)
 )
 GO
