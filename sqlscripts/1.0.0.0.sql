@@ -2,8 +2,6 @@
 IF(OBJECT_ID('OrderPayments') IS NOT NULL) DROP TABLE OrderPayments
 IF(OBJECT_ID('Orders') IS NOT NULL) DROP TABLE Orders
 
-GO
-
 CREATE TABLE Orders (
     Id          UNIQUEIDENTIFIER    NOT NULL
 ,   Code        INT                 NOT NULL
@@ -11,7 +9,6 @@ CREATE TABLE Orders (
 ,   [Status]    INT                 NOT NULL DEFAULT (0)
 ,   CONSTRAINT Pk_Orders PRIMARY KEY NONCLUSTERED (Id)
 )
-GO
 
 CREATE TABLE OrderItems (
     OrderId             UNIQUEIDENTIFIER    NOT NULL
