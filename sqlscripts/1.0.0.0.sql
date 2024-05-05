@@ -1,5 +1,5 @@
 ﻿IF(OBJECT_ID('OrderItems') IS NOT NULL) DROP TABLE OrderItems
-IF(OBJECT_ID('OrderPayments') IS NOT NULL) DROP TABLE OrderPayments
+IF(OBJECT_ID('Payments') IS NOT NULL) DROP TABLE Payments
 IF(OBJECT_ID('Orders') IS NOT NULL) DROP TABLE Orders
 
 CREATE TABLE Orders (
@@ -19,10 +19,10 @@ CREATE TABLE OrderItems (
 ,   CONSTRAINT Fk1_OrderItems FOREIGN KEY (OrderId) REFERENCES Orders (Id)
 )
 
-CREATE TABLE OrderPayments (
+CREATE TABLE Payments (
     Id                  UNIQUEIDENTIFIER    NOT NULL
 ,   OrderId             UNIQUEIDENTIFIER    NOT NULL
-,   [Status]            VARCHAR(10)         NOT NULL DEFAULT("Created")
+,   [Status]            VARCHAR(10)         NOT NULL
 ,   CONSTRAINT Pk_OrderPayments PRIMARY KEY NONCLUSTERED (Id)
 ,   CONSTRAINT Fk1_OrderPayments FOREIGN KEY (OrderId) REFERENCES Orders (Id)
 )
