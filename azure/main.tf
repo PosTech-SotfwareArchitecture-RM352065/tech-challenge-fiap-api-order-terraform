@@ -63,7 +63,7 @@ resource "azurerm_mssql_server" "sqlserver" {
 }
 
 resource "azurerm_sql_active_directory_administrator" "entra_access_sqlserver" {
-  server_name         = azurerm_sql_server.sqlserver.name
+  server_name         = azurerm_mssql_server.sqlserver.name
   resource_group_name = azurerm_resource_group.resource_group.name
   login               = "sqladmin"
   tenant_id           = data.azurerm_client_config.current.tenant_id
