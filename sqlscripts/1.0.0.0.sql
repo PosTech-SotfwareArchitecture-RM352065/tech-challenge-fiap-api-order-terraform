@@ -14,6 +14,9 @@ CREATE TABLE OrderItems (
     OrderId             UNIQUEIDENTIFIER    NOT NULL
 ,   Code                INT                 NOT NULL
 ,   ProductId           UNIQUEIDENTIFIER    NOT NULL
+,   ProductName         VARCHAR(20)         NOT NULL
+,   ProductDescription  VARCHAR(50)         NOT NULL
+,   ProductCategory     VARCHAR(10)         NOT NULL
 ,   ProductUnitPrice    DECIMAL(18, 2)      NOT NULL
 ,   CONSTRAINT Pk_OrderItems PRIMARY KEY NONCLUSTERED (OrderId, Code)
 ,   CONSTRAINT Fk1_OrderItems FOREIGN KEY (OrderId) REFERENCES Orders (Id)
