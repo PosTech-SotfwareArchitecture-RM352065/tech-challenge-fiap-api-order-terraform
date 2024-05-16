@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/random"
       version = "3.6.1"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
   backend "azurerm" {
     key = "terraform-order.tfstate"
@@ -81,6 +85,12 @@ output "order_database_connectionstring" {
   value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
 
+resource "github_actions_organization_secret" "secret_order_database_connectionstring" {
+  secret_name     = "APP_ORDER_DATABASE_CONNECTION_STRING"
+  visibility      = "all"
+  plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
 resource "azurerm_redis_cache" "sanduba_cart_database" {
   name                          = "sanduba-cart-database-redis"
   location                      = azurerm_resource_group.resource_group.location
@@ -99,6 +109,10 @@ resource "azurerm_redis_cache" "sanduba_cart_database" {
 
 output "cart_database_connectionstring" {
   value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
+}
+
+data "azurerm_resource_group" "main_group" {
+  name = "fiap-tech-challenge-main-group"
 }
 
 data "azurerm_virtual_network" "virtual_network" {
