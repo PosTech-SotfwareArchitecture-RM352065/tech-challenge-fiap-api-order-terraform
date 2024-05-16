@@ -139,13 +139,13 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   resource_group_name = azurerm_resource_group.resource_group.name
   node_resource_group = "fiap-tech-challenge-order-node-group"
   dns_prefix          = "sanduba-order"
+  depends_on = [ azurerm_mssql_database.sanduba_order_database, azurerm_redis_cache.sanduba_cart_database ]
 
 
   default_node_pool {
     name           = "default"
     node_count     = 1
     vm_size        = "Standard_B2s"
-    vnet_subnet_id = data.azurerm_subnet.order_subnet.id
   }
 
   identity {
