@@ -95,3 +95,25 @@ resource "github_actions_organization_variable" "var_database_connectionstring" 
   visibility      = "all"
   value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
+
+resource "azurerm_redis_cache" "sanduba_cart_database" {
+  name                          = "sanduba-cart-database-redis"
+  location                      = azurerm_resource_group.resource_group.location
+  resource_group_name           = azurerm_resource_group.resource_group.name
+  capacity                      = 0
+  family                        = "C"
+  sku_name                      = "Basic"
+  enable_non_ssl_port           = false
+  public_network_access_enabled = true
+  redis_version                 = 6
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+resource "github_actions_organization_secret" "cart_database_connectionstring" {
+  secret_name     = "APP_CART_DATABASE_CONNECTION_STRING"
+  visibility      = "all"
+  plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
+}
