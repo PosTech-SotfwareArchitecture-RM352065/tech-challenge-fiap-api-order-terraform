@@ -8,10 +8,6 @@ terraform {
       source  = "hashicorp/random"
       version = "3.6.1"
     }
-    github = {
-      source  = "integrations/github"
-      version = "~> 6.0"
-    }
   }
   backend "azurerm" {
     key = "terraform-order.tfstate"
@@ -20,9 +16,6 @@ terraform {
 
 provider "azurerm" {
   features {}
-}
-
-provider "github" {
 }
 
 provider "random" {
@@ -54,7 +47,7 @@ resource "azurerm_mssql_server" "sqlserver" {
   version                      = "12.0"
   administrator_login          = random_uuid.sqlserver_user.result
   administrator_login_password = random_password.sqlserver_password.result
-  
+
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
   }
@@ -84,15 +77,7 @@ resource "azurerm_mssql_database" "sanduba_order_database" {
   }
 }
 
-resource "github_actions_organization_secret" "database_connectionstring" {
-  secret_name     = "APP_ORDER_DATABASE_CONNECTION_STRING"
-  visibility      = "all"
-  plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-}
-
-resource "github_actions_organization_variable" "var_database_connectionstring" {
-  variable_name     = "VAR_APP_ORDER_DATABASE_CONNECTION_STRING"
-  visibility      = "all"
+output "order_database_connectionstring" {
   value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
 
@@ -112,8 +97,56 @@ resource "azurerm_redis_cache" "sanduba_cart_database" {
   }
 }
 
-resource "github_actions_organization_secret" "cart_database_connectionstring" {
-  secret_name     = "APP_CART_DATABASE_CONNECTION_STRING"
-  visibility      = "all"
-  plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
+output "cart_database_connectionstring" {
+  value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
+}
+
+data "azurerm_virtual_network" "virtual_network" {
+  name                = "fiap-tech-challenge-network"
+  resource_group_name = data.azurerm_resource_group.main_group.name
+}
+
+data "azurerm_subnet" "order_subnet" {
+  name                 = "fiap-tech-challenge-order-subnet"
+  virtual_network_name = data.azurerm_virtual_network.virtual_network.name
+  resource_group_name  = data.azurerm_virtual_network.virtual_network.resource_group_name
+}
+
+data "azurerm_log_analytics_workspace" "log_workspace" {
+  name                = "fiap-tech-challenge-observability-workspace"
+  resource_group_name = "fiap-tech-challenge-observability-group"
+}
+
+resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
+  name                = "fiap-tech-challenge-order-cluster"
+  location            = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  node_resource_group = "fiap-tech-challenge-order-node-group"
+  dns_prefix          = "sanduba-order"
+
+
+  default_node_pool {
+    name           = "default"
+    node_count     = 1
+    vm_size        = "Standard_B2s"
+    vnet_subnet_id = data.azurerm_subnet.order_subnet.id
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  network_profile {
+    network_plugin    = "azure"
+    network_policy    = "calico"
+    load_balancer_sku = "standard"
+  }
+
+  oms_agent {
+    log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_workspace.id
+  }
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
 }

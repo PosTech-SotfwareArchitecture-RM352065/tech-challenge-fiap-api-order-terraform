@@ -6,6 +6,7 @@ env:
   TF_LOG: INFO
   GITHUB_OWNER: ${{ github.repository_owner }} 
   GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+  TF_VAR_app_payment_url: ${{ variables.APP_PAYMENT_URL }}
 
 jobs:
   azure_terraform:
