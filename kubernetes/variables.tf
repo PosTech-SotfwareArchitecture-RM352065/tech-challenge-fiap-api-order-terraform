@@ -13,6 +13,16 @@ variable "authentication_secret_key" {
   sensitive = true
 }
 
+variable "cart_database_connectionstring" {
+  type      = string
+  sensitive = true
+}
+
+variable "order_queue_connection_string" {
+  type      = string
+  sensitive = true
+}
+
 variable "app_payment_url" {
   type      = string
   sensitive = false

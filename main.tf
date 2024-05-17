@@ -44,9 +44,10 @@ module "kubernetes-config" {
   source                          = "./kubernetes"
   kubeconfig                      = data.azurerm_kubernetes_cluster.k8s.kube_config_raw
   order_database_connectionstring = module.aks-cluster.order_database_connectionstring
-  cart_database_connectionstring  = module.aks-cluster.order_database_connectionstring
+  cart_database_connectionstring  = module.aks-cluster.cart_database_connectionstring
   authentication_secret_key       = var.authentication_secret_key
   app_payment_url                 = var.app_payment_url
+  order_queue_connection_string   = module.aks-cluster.order_queue_connection_string
 }
 
 output "kubeconfig_path" {

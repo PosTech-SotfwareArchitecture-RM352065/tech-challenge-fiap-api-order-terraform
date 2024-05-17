@@ -13,16 +13,6 @@ terraform {
       version = "~> 6.0"
     }
   }
-  backend "azurerm" {
-    key = "terraform-order.tfstate"
-  }
-}
-
-provider "azurerm" {
-  features {}
-}
-
-provider "random" {
 }
 
 resource "azurerm_resource_group" "resource_group" {
@@ -43,6 +33,8 @@ resource "random_password" "sqlserver_password" {
 
 resource "random_uuid" "sqlserver_user" {
 }
+
+## DATABASE
 
 resource "azurerm_mssql_server" "sqlserver" {
   name                         = "sanduba-order-sqlserver"
@@ -93,7 +85,7 @@ resource "github_actions_organization_secret" "secret_order_database_connections
 }
 
 resource "azurerm_redis_cache" "sanduba_cart_database" {
-  name                          = "sanduba-cart-database-redis"
+  name                          = "sanduba-cart-database"
   location                      = azurerm_resource_group.resource_group.location
   resource_group_name           = azurerm_resource_group.resource_group.name
   capacity                      = 0
@@ -139,13 +131,13 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   resource_group_name = azurerm_resource_group.resource_group.name
   node_resource_group = "fiap-tech-challenge-order-node-group"
   dns_prefix          = "sanduba-order"
-  depends_on = [ azurerm_mssql_database.sanduba_order_database, azurerm_redis_cache.sanduba_cart_database ]
+  depends_on          = [azurerm_mssql_database.sanduba_order_database, azurerm_redis_cache.sanduba_cart_database]
 
 
   default_node_pool {
-    name           = "default"
-    node_count     = 1
-    vm_size        = "Standard_B2s"
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_B2s"
   }
 
   identity {
@@ -165,4 +157,56 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
   }
+}
+
+## QUEUE
+
+resource "azurerm_servicebus_namespace" "servicebus_namespace" {
+  name                = "fiap-tech-challenge-order-queue-namespace"
+  location            = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  sku                 = "Standard"
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+resource "azurerm_servicebus_queue" "servicebus_queue_error" {
+  name                                 = "fiap-tech-challenge-order-queue-error"
+  namespace_id                         = azurerm_servicebus_namespace.servicebus_namespace.id
+  dead_lettering_on_message_expiration = true
+  enable_partitioning                  = true
+}
+
+resource "azurerm_servicebus_queue" "servicebus_queue" {
+  name                              = "fiap-tech-challenge-order-queue"
+  namespace_id                      = azurerm_servicebus_namespace.servicebus_namespace.id
+  forward_dead_lettered_messages_to = azurerm_servicebus_queue.servicebus_queue_error.name
+  enable_partitioning               = true
+  #  forward_to = 
+}
+
+
+resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_reader_rule" {
+  name     = "fiap-tech-challenge-order-queue-reader"
+  queue_id = azurerm_servicebus_queue.servicebus_queue.id
+
+  listen = true
+  send   = false
+  manage = false
+}
+
+resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_writter_rule" {
+  name     = "fiap-tech-challenge-order-queue-writter"
+  queue_id = azurerm_servicebus_queue.servicebus_queue.id
+
+  listen = true
+  send   = true
+  manage = false
+}
+
+output "order_queue_connection_string" {
+  value     = azurerm_servicebus_queue_authorization_rule.servicebus_queue_writter_rule.primary_connection_string
+  sensitive = true
 }
