@@ -22,6 +22,7 @@ resource "kubernetes_secret" "api_secrets" {
     ORDER_CONNECTION_STRING = var.order_database_connectionstring
     CART_CONNECTION_STRING  = var.cart_database_connectionstring
     AUTH_SECRET_KEY         = var.authentication_secret_key
+    QUEUE_CONNECTION_STRING = var.order_queue_connection_string
   }
 
   type = "Opaque"
@@ -40,7 +41,6 @@ resource "kubernetes_config_map" "api_config" {
     AUTH_ISSUER             = "Sanduba.Auth"
     AUTH_AUDIENCE           = "Users"
     PAYMENT_URL             = var.app_payment_url
-    QUEUE_CONNECTION_STRING = var.order_queue_connection_string
   }
 }
 

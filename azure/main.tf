@@ -173,7 +173,7 @@ resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   name                = "fiap-tech-challenge-order-queue-namespace"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
-  sku                 = "Standard"
+  sku                 = "Basic"
 
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
