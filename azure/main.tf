@@ -92,6 +92,13 @@ resource "github_actions_organization_secret" "secret_order_database_connections
   plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
 
+resource "github_actions_organization_variable" "var_order_database_connectionstring" {
+  variable_name = "VAR_APP_ORDER_DATABASE_CONNECTION_STRING"
+  visibility    = "all"
+  value         = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
+
 resource "azurerm_redis_cache" "sanduba_cart_database" {
   name                          = "sanduba-cart-database"
   location                      = azurerm_resource_group.resource_group.location
