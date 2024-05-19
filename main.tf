@@ -36,7 +36,8 @@ provider "azurerm" {
 }
 
 module "aks-cluster" {
-  source = "./azure"
+  source  = "./azure"
+  home_ip = var.home_ip
 }
 
 module "kubernetes-config" {

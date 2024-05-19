@@ -11,6 +11,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
   TF_VAR_app_payment_url: ""
   TF_VAR_authentication_secret_key: ""
+  TF_VAR_home_ip: ""
 
 jobs:
   azure_terraform:
