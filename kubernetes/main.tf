@@ -34,13 +34,13 @@ resource "kubernetes_config_map" "api_config" {
   }
 
   data = {
-    ASPNETCORE_URLS         = "http://+:8080"
-    ASPNETCORE_ENVIRONMENT  = var.environment
-    ORDER_CONNECTION_TYPE   = "MSSQL"
-    CART_CONNECTION_TYPE    = "REDIS"
-    AUTH_ISSUER             = "Sanduba.Auth"
-    AUTH_AUDIENCE           = "Users"
-    PAYMENT_URL             = var.app_payment_url
+    ASPNETCORE_URLS        = "http://+:8080"
+    ASPNETCORE_ENVIRONMENT = var.environment
+    ORDER_CONNECTION_TYPE  = "MSSQL"
+    CART_CONNECTION_TYPE   = "REDIS"
+    AUTH_ISSUER            = "Sanduba.Auth"
+    AUTH_AUDIENCE          = "Users"
+    PAYMENT_URL            = var.app_payment_url
   }
 }
 

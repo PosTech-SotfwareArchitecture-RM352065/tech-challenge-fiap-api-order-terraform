@@ -92,13 +92,6 @@ resource "github_actions_organization_secret" "secret_order_database_connections
   plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 }
 
-resource "github_actions_organization_variable" "var_order_database_connectionstring" {
-  variable_name = "VAR_APP_ORDER_DATABASE_CONNECTION_STRING"
-  visibility    = "all"
-  value         = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-}
-
-
 resource "azurerm_redis_cache" "sanduba_cart_database" {
   name                          = "sanduba-cart-database"
   location                      = azurerm_resource_group.resource_group.location
@@ -118,6 +111,12 @@ resource "azurerm_redis_cache" "sanduba_cart_database" {
 output "cart_database_connectionstring" {
   value     = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
   sensitive = true
+}
+
+resource "github_actions_organization_secret" "secret_cart_database_connectionstring" {
+  secret_name     = "APP_CART_DATABASE_CONNECTION_STRING"
+  visibility      = "all"
+  plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
 }
 
 data "azurerm_resource_group" "main_group" {
@@ -218,10 +217,16 @@ resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_writter
 
   listen = true
   send   = true
-  manage = false
+  manage = true
 }
 
 output "order_queue_connection_string" {
   value     = azurerm_servicebus_queue_authorization_rule.servicebus_queue_writter_rule.primary_connection_string
   sensitive = true
+}
+
+resource "github_actions_organization_secret" "secret_order_queue_connection_string" {
+  secret_name     = "APP_ORDER_QUEUE_CONNECTION_STRING"
+  visibility      = "all"
+  plaintext_value = azurerm_servicebus_queue_authorization_rule.servicebus_queue_writter_rule.primary_connection_string
 }
