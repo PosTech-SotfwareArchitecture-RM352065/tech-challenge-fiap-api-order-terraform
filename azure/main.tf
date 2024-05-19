@@ -229,12 +229,12 @@ resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_writter
 }
 
 output "order_queue_connection_string" {
-  value     = azurerm_servicebus_namespace.servicebus_namespace.primary_connection_string
+  value     = azurerm_servicebus_namespace.servicebus_namespace.default_primary_connection_string
   sensitive = true
 }
 
 resource "github_actions_organization_secret" "secret_order_queue_connection_string" {
   secret_name     = "APP_ORDER_QUEUE_CONNECTION_STRING"
   visibility      = "all"
-  plaintext_value = azurerm_servicebus_namespace.servicebus_namespace.primary_connection_string
+  plaintext_value = azurerm_servicebus_namespace.servicebus_namespace.default_primary_connection_string
 }
