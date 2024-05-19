@@ -15,7 +15,7 @@ terraform {
 }
 
 data "azurerm_kubernetes_cluster" "k8s" {
-  depends_on          = [module.azure-module]
+  depends_on          = [module.aks-cluster]
   name                = "fiap-tech-challenge-order-cluster"
   resource_group_name = "fiap-tech-challenge-order-group"
 }
@@ -35,19 +35,19 @@ provider "azurerm" {
   }
 }
 
-module "azure-module" {
+module "aks-cluster" {
   source = "./azure"
 }
 
 module "kubernetes-config" {
-  depends_on                      = [module.azure-module]
+  depends_on                      = [module.aks-cluster]
   source                          = "./kubernetes"
   kubeconfig                      = data.azurerm_kubernetes_cluster.k8s.kube_config_raw
-  order_database_connectionstring = module.azure-module.order_database_connectionstring
-  cart_database_connectionstring  = module.azure-module.cart_database_connectionstring
+  order_database_connectionstring = module.aks-cluster.order_database_connectionstring
+  cart_database_connectionstring  = module.aks-cluster.cart_database_connectionstring
   authentication_secret_key       = var.authentication_secret_key
   app_payment_url                 = var.app_payment_url
-  order_queue_connection_string   = module.azure-module.order_queue_connection_string
+  order_queue_connection_string   = module.aks-cluster.order_queue_connection_string
 }
 
 output "kubeconfig_path" {
