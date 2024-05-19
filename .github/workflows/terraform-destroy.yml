@@ -10,6 +10,7 @@ env:
   GITHUB_OWNER: ${{ github.repository_owner }} 
   GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
   TF_VAR_app_payment_url: ""
+  TF_VAR_authentication_secret_key: ""
 
 jobs:
   azure_terraform:
