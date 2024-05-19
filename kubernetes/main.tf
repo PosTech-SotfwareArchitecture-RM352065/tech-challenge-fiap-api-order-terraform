@@ -108,16 +108,6 @@ resource "kubernetes_deployment" "api_deployment" {
           }
 
           env {
-            name = "ConnectionStrings__CartDatabase_type"
-            value_from {
-              config_map_key_ref {
-                key  = "CART_CONNECTION_TYPE"
-                name = kubernetes_config_map.api_config.metadata[0].name
-              }
-            }
-          }
-
-          env {
             name = "ConnectionStrings__CartDatabase__Value"
             value_from {
               secret_key_ref {
@@ -170,9 +160,9 @@ resource "kubernetes_deployment" "api_deployment" {
           env {
             name = "BrokerSettings__ConnectionString"
             value_from {
-              config_map_key_ref {
+              secret_key_ref {
                 key  = "QUEUE_CONNECTION_STRING"
-                name = kubernetes_config_map.api_config.metadata[0].name
+                name = kubernetes_secret.api_secrets.metadata[0].name
               }
             }
           }
