@@ -23,6 +23,11 @@ variable "app_payment_url" {
   sensitive = false
 }
 
+variable "order_public_ip" {
+  type      = string
+  sensitive = false
+}
+
 variable "environment" {
   type    = string
   default = "Development"

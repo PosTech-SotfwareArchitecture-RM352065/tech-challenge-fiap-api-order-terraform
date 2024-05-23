@@ -49,6 +49,7 @@ module "kubernetes-config" {
   authentication_secret_key       = var.authentication_secret_key
   app_payment_url                 = var.app_payment_url
   order_queue_connection_string   = module.aks-cluster.order_queue_connection_string
+  order_public_ip                 = module.aks-cluster.order_public_ip
 }
 
 output "kubeconfig_path" {

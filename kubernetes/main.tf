@@ -200,9 +200,6 @@ resource "kubernetes_service" "api_service" {
     labels = {
       app = "sanduba-order-api-svc"
     }
-    annotations = {
-      "sevice.beta.kubernetes.io/azure-load-balancer-internal" = "true"
-    }
   }
   spec {
     selector = {
@@ -214,35 +211,7 @@ resource "kubernetes_service" "api_service" {
     }
 
     type = "LoadBalancer"
-  }
-}
 
-resource "kubernetes_ingress_v1" "api_ingress" {
-  metadata {
-    name = "sanduba-order-api-ingress"
-    labels = {
-      app = "sanduba-order-api-ingress"
-    }
-  }
-
-  spec {
-    ingress_class_name = "azure-application-gateway"
-
-    rule {
-      http {
-        path {
-          backend {
-            service {
-              name = kubernetes_service.api_service.metadata[0].name
-              port {
-                number = kubernetes_service.api_service.spec[0].port[0].port
-              }
-            }
-          }
-
-          path = "/*"
-        }
-      }
-    }
+    load_balancer_ip = var.order_public_ip 
   }
 }

@@ -65,7 +65,7 @@ resource "azurerm_mssql_firewall_rule" "sqlserver_allow_azure_services_rule" {
 }
 
 resource "azurerm_mssql_firewall_rule" "sqlserver_allow_home_ip_rule" {
-  name             = "Allow access to Azure services"
+  name             = "Allow access to Home IP"
   server_id        = azurerm_mssql_server.sqlserver.id
   start_ip_address = var.home_ip
   end_ip_address   = var.home_ip
@@ -127,24 +127,27 @@ resource "github_actions_organization_secret" "secret_cart_database_connectionst
   plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
 }
 
-data "azurerm_resource_group" "main_group" {
-  name = "fiap-tech-challenge-main-group"
-}
-
-data "azurerm_virtual_network" "virtual_network" {
-  name                = "fiap-tech-challenge-network"
-  resource_group_name = data.azurerm_resource_group.main_group.name
-}
-
-data "azurerm_subnet" "order_subnet" {
-  name                 = "fiap-tech-challenge-order-subnet"
-  virtual_network_name = data.azurerm_virtual_network.virtual_network.name
-  resource_group_name  = data.azurerm_virtual_network.virtual_network.resource_group_name
-}
-
 data "azurerm_log_analytics_workspace" "log_workspace" {
   name                = "fiap-tech-challenge-observability-workspace"
   resource_group_name = "fiap-tech-challenge-observability-group"
+}
+
+resource "azurerm_public_ip" "order_public_ip" {
+  name                = "fiap-tech-challenge-order-public-ip"
+  resource_group_name = azurerm_resource_group.resource_group.name
+  location            = azurerm_resource_group.resource_group.location
+  allocation_method   = "Static"
+  domain_name_label   = "sanduba-order"
+  sku                 = "Standard"
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+output "order_public_ip" {
+  value     = azurerm_public_ip.public_ip.ip_address
+  sensitive = false
 }
 
 resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
@@ -154,7 +157,6 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   node_resource_group = "fiap-tech-challenge-order-node-group"
   dns_prefix          = "sanduba-order"
   depends_on          = [azurerm_mssql_database.sanduba_order_database, azurerm_redis_cache.sanduba_cart_database]
-
 
   default_node_pool {
     name       = "default"
@@ -170,6 +172,10 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     network_plugin    = "azure"
     network_policy    = "calico"
     load_balancer_sku = "standard"
+
+    load_balancer_profile {
+        outbound_ip_address_ids = azurerm_public_ip.public_ip.id
+    }
   }
 
   oms_agent {
