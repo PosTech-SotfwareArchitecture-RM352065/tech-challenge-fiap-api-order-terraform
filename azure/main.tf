@@ -174,7 +174,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     load_balancer_sku = "standard"
 
     load_balancer_profile {
-        outbound_ip_address_ids = azurerm_public_ip.public_ip.id
+        outbound_ip_address_ids = azurerm_public_ip.order_public_ip.id
     }
   }
 
