@@ -33,6 +33,17 @@ resource "azurerm_resource_group" "resource_group" {
   }
 }
 
+
+resource "azurerm_resource_group" "resource_group_node" {
+  name       = "fiap-tech-challenge-order-node-group"
+  location   = "eastus"
+  managed_by = "fiap-tech-challenge-main-group"
+
+  tags = {
+    environment = "development"
+  }
+}
+
 resource "random_password" "sqlserver_password" {
   length           = 16
   special          = true
@@ -134,8 +145,8 @@ data "azurerm_log_analytics_workspace" "log_workspace" {
 
 resource "azurerm_public_ip" "order_public_ip" {
   name                = "fiap-tech-challenge-order-public-ip"
-  resource_group_name = azurerm_resource_group.resource_group.name
-  location            = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.resource_group_node.name
+  location            = azurerm_resource_group.resource_group_node.location
   allocation_method   = "Static"
   domain_name_label   = "sanduba-order"
   sku                 = "Standard"
@@ -154,7 +165,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   name                = "fiap-tech-challenge-order-cluster"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
-  node_resource_group = "fiap-tech-challenge-order-node-group"
+  node_resource_group = azurerm_resource_group.resource_group_node.name
   dns_prefix          = "sanduba-order"
   depends_on          = [azurerm_mssql_database.sanduba_order_database, azurerm_redis_cache.sanduba_cart_database]
 
