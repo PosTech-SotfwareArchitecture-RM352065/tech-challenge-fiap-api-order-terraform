@@ -59,9 +59,9 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SUBSCRIPTION_ID }}
       run: terraform apply -auto-approve
 
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    name: Main Database
-    uses: ./.github/workflows/deploy-main-database.yml
-    secrets: inherit
-    needs: [azure_terraform]
+  # deploy:
+  #   if: github.ref == 'refs/heads/main'
+  #   name: Main Database
+  #   uses: ./.github/workflows/deploy-main-database.yml
+  #   secrets: inherit
+  #   needs: [azure_terraform]
