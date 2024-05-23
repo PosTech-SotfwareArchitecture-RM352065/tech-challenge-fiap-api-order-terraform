@@ -34,15 +34,6 @@ resource "azurerm_resource_group" "resource_group" {
 }
 
 
-resource "azurerm_resource_group" "resource_group_node" {
-  name       = "fiap-tech-challenge-order-node-group"
-  location   = "eastus"
-  managed_by = "fiap-tech-challenge-main-group"
-
-  tags = {
-    environment = "development"
-  }
-}
 
 resource "random_password" "sqlserver_password" {
   length           = 16
@@ -143,29 +134,11 @@ data "azurerm_log_analytics_workspace" "log_workspace" {
   resource_group_name = "fiap-tech-challenge-observability-group"
 }
 
-resource "azurerm_public_ip" "order_public_ip" {
-  name                = "fiap-tech-challenge-order-public-ip"
-  resource_group_name = azurerm_resource_group.resource_group_node.name
-  location            = azurerm_resource_group.resource_group_node.location
-  allocation_method   = "Static"
-  domain_name_label   = "sanduba-order"
-  sku                 = "Standard"
-
-  tags = {
-    environment = azurerm_resource_group.resource_group.tags["environment"]
-  }
-}
-
-output "order_public_ip" {
-  value     = azurerm_public_ip.order_public_ip.ip_address
-  sensitive = false
-}
-
 resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   name                = "fiap-tech-challenge-order-cluster"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
-  node_resource_group = azurerm_resource_group.resource_group_node.name
+  node_resource_group = "fiap-tech-challenge-order-node-group"
   dns_prefix          = "sanduba-order"
   depends_on          = [azurerm_mssql_database.sanduba_order_database, azurerm_redis_cache.sanduba_cart_database]
 
@@ -192,6 +165,30 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
   }
+}
+
+data "azurerm_resource_group" "resource_group_node" {
+  name       = "fiap-tech-challenge-order-node-group"
+  location   = "eastus"
+  depends_on = [ azurerm_kubernetes_cluster.kubernetes_cluster ]
+}
+
+resource "azurerm_public_ip" "order_public_ip" {
+  name                = "fiap-tech-challenge-order-public-ip"
+  resource_group_name = data.azurerm_resource_group.resource_group_node.name
+  location            = data.azurerm_resource_group.resource_group_node.location
+  allocation_method   = "Static"
+  domain_name_label   = "sanduba-order"
+  sku                 = "Standard"
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+output "order_public_ip" {
+  value     = azurerm_public_ip.order_public_ip.ip_address
+  sensitive = false
 }
 
 ## QUEUE
