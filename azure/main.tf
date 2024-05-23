@@ -169,7 +169,6 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
 
 data "azurerm_resource_group" "resource_group_node" {
   name       = "fiap-tech-challenge-order-node-group"
-  location   = "eastus"
   depends_on = [ azurerm_kubernetes_cluster.kubernetes_cluster ]
 }
 
