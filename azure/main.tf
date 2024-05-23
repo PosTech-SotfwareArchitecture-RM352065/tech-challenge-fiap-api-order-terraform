@@ -146,7 +146,7 @@ resource "azurerm_public_ip" "order_public_ip" {
 }
 
 output "order_public_ip" {
-  value     = azurerm_public_ip.public_ip.ip_address
+  value     = azurerm_public_ip.order_public_ip.ip_address
   sensitive = false
 }
 
