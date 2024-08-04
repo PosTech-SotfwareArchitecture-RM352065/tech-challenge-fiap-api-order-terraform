@@ -21,7 +21,7 @@ variable "app_payment_url" {
   sensitive = false
 }
 
-variable "home_ip" {
+variable "home_ip_address" {
   type      = string
   sensitive = true
 }

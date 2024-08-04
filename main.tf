@@ -27,17 +27,17 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.cluster_ca_certificate)
 }
 
-provider "azurerm" {
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
+module "aks-cluster" {
+  source          = "./azure"
+  home_ip_address = var.home_ip_address
 }
 
-module "aks-cluster" {
-  source  = "./azure"
-  home_ip = var.home_ip
+module "github" {
+  source                                   = "./github"
+  depends_on                               = [module.aks-cluster]
+  sanduba_order_database_connection_string = module.aks-cluster.order_database_connectionstring
+  sanduba_order_queue_connection_string    = module.aks-cluster.order_queue_connection_string
+  sanduba_cart_database_connection_string  = module.aks-cluster.cart_database_connectionstring
 }
 
 module "kubernetes-config" {

@@ -1,20 +1,3 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "3.90.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.6.1"
-    }
-    github = {
-      source  = "integrations/github"
-      version = "~> 6.0"
-    }
-  }
-}
-
 provider "azurerm" {
   features {
     resource_group {
@@ -24,12 +7,11 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "resource_group" {
-  name       = "fiap-tech-challenge-order-group"
-  location   = "eastus"
-  managed_by = "fiap-tech-challenge-main-group"
+  name     = "fiap-tech-challenge-order-group"
+  location = var.main_resource_group_location
 
   tags = {
-    environment = "development"
+    environment = var.environment
   }
 }
 
@@ -69,8 +51,8 @@ resource "azurerm_mssql_firewall_rule" "sqlserver_allow_azure_services_rule" {
 resource "azurerm_mssql_firewall_rule" "sqlserver_allow_home_ip_rule" {
   name             = "Allow access to Home IP"
   server_id        = azurerm_mssql_server.sqlserver.id
-  start_ip_address = var.home_ip
-  end_ip_address   = var.home_ip
+  start_ip_address = var.home_ip_address
+  end_ip_address   = var.home_ip_address
 }
 
 
@@ -96,11 +78,6 @@ output "order_database_connectionstring" {
   sensitive = true
 }
 
-resource "github_actions_organization_secret" "secret_order_database_connectionstring" {
-  secret_name     = "APP_ORDER_DATABASE_CONNECTION_STRING"
-  visibility      = "all"
-  plaintext_value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-}
 
 resource "azurerm_redis_cache" "sanduba_cart_database" {
   name                          = "sanduba-cart-database"
@@ -123,15 +100,9 @@ output "cart_database_connectionstring" {
   sensitive = true
 }
 
-resource "github_actions_organization_secret" "secret_cart_database_connectionstring" {
-  secret_name     = "APP_CART_DATABASE_CONNECTION_STRING"
-  visibility      = "all"
-  plaintext_value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
-}
-
 data "azurerm_log_analytics_workspace" "log_workspace" {
   name                = "fiap-tech-challenge-observability-workspace"
-  resource_group_name = "fiap-tech-challenge-observability-group"
+  resource_group_name = var.main_resource_group
 }
 
 resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
@@ -169,7 +140,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
 
 data "azurerm_resource_group" "resource_group_node" {
   name       = "fiap-tech-challenge-order-node-group"
-  depends_on = [ azurerm_kubernetes_cluster.kubernetes_cluster ]
+  depends_on = [azurerm_kubernetes_cluster.kubernetes_cluster]
 }
 
 resource "azurerm_public_ip" "order_public_ip" {
@@ -207,17 +178,13 @@ resource "azurerm_servicebus_queue" "servicebus_queue_error" {
   name                                 = "fiap-tech-challenge-order-queue-error"
   namespace_id                         = azurerm_servicebus_namespace.servicebus_namespace.id
   dead_lettering_on_message_expiration = true
-  enable_partitioning                  = true
 }
 
 resource "azurerm_servicebus_queue" "servicebus_queue" {
   name                              = "fiap-tech-challenge-order-queue"
   namespace_id                      = azurerm_servicebus_namespace.servicebus_namespace.id
   forward_dead_lettered_messages_to = azurerm_servicebus_queue.servicebus_queue_error.name
-  enable_partitioning               = true
-  #  forward_to = 
 }
-
 
 resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_reader_rule" {
   name     = "fiap-tech-challenge-order-queue-reader"
@@ -240,10 +207,4 @@ resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_writter
 output "order_queue_connection_string" {
   value     = azurerm_servicebus_namespace.servicebus_namespace.default_primary_connection_string
   sensitive = true
-}
-
-resource "github_actions_organization_secret" "secret_order_queue_connection_string" {
-  secret_name     = "APP_ORDER_QUEUE_CONNECTION_STRING"
-  visibility      = "all"
-  plaintext_value = azurerm_servicebus_namespace.servicebus_namespace.default_primary_connection_string
 }

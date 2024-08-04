@@ -212,6 +212,6 @@ resource "kubernetes_service" "api_service" {
 
     type = "LoadBalancer"
 
-    load_balancer_ip = var.order_public_ip 
+    load_balancer_ip = var.order_public_ip
   }
 }

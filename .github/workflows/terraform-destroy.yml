@@ -1,17 +1,16 @@
 name: 'Terraform Destroy'
 
 on:
-  schedule:
-    - cron: '0-6 4 * * *'
   workflow_dispatch:
   
 env:
   TF_LOG: INFO
-  GITHUB_OWNER: ${{ github.repository_owner }} 
-  GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+  TF_VAR_location: ${{ vars.AZURE_LOCATION }}
+  TF_VAR_home_ip_address: ${{ secrets.HOME_IP }}
   TF_VAR_app_payment_url: ""
   TF_VAR_authentication_secret_key: ""
-  TF_VAR_home_ip: ""
+  GITHUB_OWNER: ${{ github.repository_owner }} 
+  GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
 
 jobs:
   azure_terraform:
@@ -29,6 +28,17 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Set environment variable
+      id: set-env
+      run: |
+        if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          echo "TF_VAR_environment=production" >> $GITHUB_ENV
+        elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+          echo "TF_VAR_environment=staging" >> $GITHUB_ENV
+        else
+          echo "TF_VAR_environment=default" >> $GITHUB_ENV
+        fi
 
     # Install the preferred version of Terraform CLI 
     - name: Setup Terraform
