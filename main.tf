@@ -22,6 +22,25 @@ provider "azurerm" {
   }
 }
 
+data "azurerm_resource_group" "main_group" {
+  name = "fiap-tech-challenge-main-group"
+}
+module "aks-cluster" {
+  source                       = "./azure"
+  main_resource_group          = data.azurerm_resource_group.main_group.name
+  main_resource_group_location = data.azurerm_resource_group.main_group.location
+  environment                  = data.azurerm_resource_group.main_group.tags["environment"]
+  home_ip_address   	         = var.home_ip_address
+}
+
+module "github" {
+  source                                   = "./github"
+  depends_on                               = [module.aks-cluster]
+  sanduba_order_database_connection_string = module.aks-cluster.order_database_connectionstring
+  sanduba_order_queue_connection_string    = module.aks-cluster.order_queue_connection_string
+  sanduba_cart_database_connection_string  = module.aks-cluster.cart_database_connectionstring
+}
+
 data "azurerm_kubernetes_cluster" "k8s" {
   depends_on          = [module.aks-cluster]
   name                = "fiap-tech-challenge-order-cluster"
@@ -33,19 +52,6 @@ provider "kubernetes" {
   client_certificate     = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.client_certificate)
   client_key             = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.client_key)
   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.cluster_ca_certificate)
-}
-
-module "aks-cluster" {
-  source          = "./azure"
-  home_ip_address = var.home_ip_address
-}
-
-module "github" {
-  source                                   = "./github"
-  depends_on                               = [module.aks-cluster]
-  sanduba_order_database_connection_string = module.aks-cluster.order_database_connectionstring
-  sanduba_order_queue_connection_string    = module.aks-cluster.order_queue_connection_string
-  sanduba_cart_database_connection_string  = module.aks-cluster.cart_database_connectionstring
 }
 
 module "kubernetes-config" {
