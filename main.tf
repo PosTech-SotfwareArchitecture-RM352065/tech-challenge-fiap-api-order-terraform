@@ -14,6 +14,14 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
 data "azurerm_kubernetes_cluster" "k8s" {
   depends_on          = [module.aks-cluster]
   name                = "fiap-tech-challenge-order-cluster"

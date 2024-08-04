@@ -1,11 +1,3 @@
-provider "azurerm" {
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
-}
-
 resource "azurerm_resource_group" "resource_group" {
   name     = "fiap-tech-challenge-order-group"
   location = var.main_resource_group_location
@@ -14,8 +6,6 @@ resource "azurerm_resource_group" "resource_group" {
     environment = var.environment
   }
 }
-
-
 
 resource "random_password" "sqlserver_password" {
   length           = 16
