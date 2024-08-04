@@ -2,9 +2,11 @@ name: Release Database
 
 on: 
   workflow_run:
-    workflows: ["terrafrom-apply"]
+    workflows: ["terraform-apply"]
     types:
       - completed
+  workflow_dispatch:
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
