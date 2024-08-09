@@ -174,7 +174,7 @@ resource "kubernetes_deployment" "api_deployment" {
             value_from {
               config_map_key_ref {
                 key  = "TOPIC_NAME"
-                name = kubernetes_secret.api_config.metadata[0].name
+                name = kubernetes_config_map.api_config.metadata[0].name
               }
             }
           }
@@ -184,7 +184,7 @@ resource "kubernetes_deployment" "api_deployment" {
             value_from {
               config_map_key_ref {
                 key  = "TOPIC_SUBSCRIPTION_NAME"
-                name = kubernetes_secret.api_config.metadata[0].name
+                name = kubernetes_config_map.api_config.metadata[0].name
               }
             }
           }
