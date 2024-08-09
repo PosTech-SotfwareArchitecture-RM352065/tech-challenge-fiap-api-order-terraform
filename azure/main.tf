@@ -16,8 +16,6 @@ resource "random_password" "sqlserver_password" {
 resource "random_uuid" "sqlserver_user" {
 }
 
-## DATABASE
-
 resource "azurerm_mssql_server" "sqlserver" {
   name                         = "sanduba-order-sqlserver"
   resource_group_name          = azurerm_resource_group.resource_group.name
@@ -151,10 +149,8 @@ output "order_public_ip" {
   sensitive = false
 }
 
-## QUEUE
-
 resource "azurerm_servicebus_namespace" "servicebus_namespace" {
-  name                = "fiap-tech-challenge-order-queue-namespace"
+  name                = "fiap-tech-challenge-order-topic-namespace"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
   sku                 = "Standard"
@@ -164,37 +160,36 @@ resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   }
 }
 
-resource "azurerm_servicebus_queue" "servicebus_queue_error" {
-  name                                 = "fiap-tech-challenge-order-queue-error"
-  namespace_id                         = azurerm_servicebus_namespace.servicebus_namespace.id
-  dead_lettering_on_message_expiration = true
+resource "azurerm_servicebus_topic" "servicebus_topic" {
+  name         = "fiap-tech-challenge-order-topic"
+  namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
 }
 
-resource "azurerm_servicebus_queue" "servicebus_queue" {
-  name                              = "fiap-tech-challenge-order-queue"
-  namespace_id                      = azurerm_servicebus_namespace.servicebus_namespace.id
-  forward_dead_lettered_messages_to = azurerm_servicebus_queue.servicebus_queue_error.name
+resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_manager" {
+  name     = "${azurerm_servicebus_topic.servicebus_topic.name}-manager"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = true
+  send     = true
+  manage   = true
 }
 
-resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_reader_rule" {
-  name     = "fiap-tech-challenge-order-queue-reader"
-  queue_id = azurerm_servicebus_queue.servicebus_queue.id
-
-  listen = true
-  send   = false
-  manage = false
+resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_publisher" {
+  name     = "${azurerm_servicebus_topic.servicebus_topic.name}-publisher"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = false
+  send     = true
+  manage   = false
 }
 
-resource "azurerm_servicebus_queue_authorization_rule" "servicebus_queue_writter_rule" {
-  name     = "fiap-tech-challenge-order-queue-writter"
-  queue_id = azurerm_servicebus_queue.servicebus_queue.id
-
-  listen = true
-  send   = true
-  manage = true
+resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_listener" {
+  name     = "${azurerm_servicebus_topic.servicebus_topic.name}-listener"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = true
+  send     = false
+  manage   = false
 }
 
-output "order_queue_connection_string" {
+output "order_topic_connection_string" {
   value     = azurerm_servicebus_namespace.servicebus_namespace.default_primary_connection_string
   sensitive = true
 }

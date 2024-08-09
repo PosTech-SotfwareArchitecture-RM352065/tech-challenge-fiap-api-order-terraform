@@ -22,7 +22,7 @@ resource "kubernetes_secret" "api_secrets" {
     ORDER_CONNECTION_STRING = var.order_database_connectionstring
     CART_CONNECTION_STRING  = var.cart_database_connectionstring
     AUTH_SECRET_KEY         = var.authentication_secret_key
-    QUEUE_CONNECTION_STRING = var.order_queue_connection_string
+    TOPIC_CONNECTION_STRING = var.order_topic_connection_string
   }
 
   type = "Opaque"
@@ -34,13 +34,15 @@ resource "kubernetes_config_map" "api_config" {
   }
 
   data = {
-    ASPNETCORE_URLS        = "http://+:8080"
-    ASPNETCORE_ENVIRONMENT = var.environment
-    ORDER_CONNECTION_TYPE  = "MSSQL"
-    CART_CONNECTION_TYPE   = "REDIS"
-    AUTH_ISSUER            = "Sanduba.Auth"
-    AUTH_AUDIENCE          = "Users"
-    PAYMENT_URL            = var.app_payment_url
+    ASPNETCORE_URLS         = "http://+:8080"
+    ASPNETCORE_ENVIRONMENT  = var.environment
+    ORDER_CONNECTION_TYPE   = "MSSQL"
+    CART_CONNECTION_TYPE    = "REDIS"
+    AUTH_ISSUER             = "Sanduba.Auth"
+    AUTH_AUDIENCE           = "Users"
+    PAYMENT_URL             = var.app_payment_url
+    TOPIC_NAME              = var.order_topic_name
+    TOPIC_SUBSCRIPTION_NAME = var.order_topic_subscription
   }
 }
 
@@ -161,8 +163,28 @@ resource "kubernetes_deployment" "api_deployment" {
             name = "BrokerSettings__ConnectionString"
             value_from {
               secret_key_ref {
-                key  = "QUEUE_CONNECTION_STRING"
+                key  = "TOPIC_CONNECTION_STRING"
                 name = kubernetes_secret.api_secrets.metadata[0].name
+              }
+            }
+          }
+
+          env {
+            name = "BrokerSettings__TopicName"
+            value_from {
+              config_map_key_ref {
+                key  = "TOPIC_NAME"
+                name = kubernetes_secret.api_config.metadata[0].name
+              }
+            }
+          }
+
+          env {
+            name = "BrokerSettings__SubscriptionName"
+            value_from {
+              config_map_key_ref {
+                key  = "TOPIC_SUBSCRIPTION_NAME"
+                name = kubernetes_secret.api_config.metadata[0].name
               }
             }
           }

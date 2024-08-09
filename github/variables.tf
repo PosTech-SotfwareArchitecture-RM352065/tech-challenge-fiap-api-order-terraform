@@ -4,7 +4,7 @@ variable "sanduba_order_database_connection_string" {
   default   = ""
 }
 
-variable "sanduba_order_queue_connection_string" {
+variable "sanduba_order_topic_connection_string" {
   sensitive = true
   type      = string
   default   = ""

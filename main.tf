@@ -37,7 +37,7 @@ module "github" {
   source                                   = "./github"
   depends_on                               = [module.aks-cluster]
   sanduba_order_database_connection_string = module.aks-cluster.order_database_connectionstring
-  sanduba_order_queue_connection_string    = module.aks-cluster.order_queue_connection_string
+  sanduba_order_topic_connection_string    = module.aks-cluster.order_topic_connection_string
   sanduba_cart_database_connection_string  = module.aks-cluster.cart_database_connectionstring
 }
 
@@ -62,7 +62,9 @@ module "kubernetes-config" {
   cart_database_connectionstring  = module.aks-cluster.cart_database_connectionstring
   authentication_secret_key       = var.authentication_secret_key
   app_payment_url                 = var.app_payment_url
-  order_queue_connection_string   = module.aks-cluster.order_queue_connection_string
+  order_topic_connection_string   = module.aks-cluster.order_topic_connection_string
+  order_topic_name                = module.aks-cluster.order_topic_name
+  order_topic_subscription        = module.aks-cluster.order_topic_subscription
   order_public_ip                 = module.aks-cluster.order_public_ip
 }
 

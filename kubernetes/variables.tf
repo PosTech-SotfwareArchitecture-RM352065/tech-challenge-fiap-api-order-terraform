@@ -13,9 +13,19 @@ variable "authentication_secret_key" {
   sensitive = true
 }
 
-variable "order_queue_connection_string" {
+variable "order_topic_connection_string" {
   type      = string
   sensitive = true
+}
+
+variable "order_topic_name" {
+  type      = string
+  sensitive = true
+}
+
+variable "order_topic_subscription" {
+  type      = string
+  sensitive = false
 }
 
 variable "app_payment_url" {
