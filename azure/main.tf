@@ -165,6 +165,12 @@ resource "azurerm_servicebus_topic" "servicebus_topic" {
   namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
 }
 
+resource "azurerm_servicebus_subscription" "topic_subscription" {
+  name               = "order-topic-subscription"
+  topic_id           = azurerm_servicebus_topic.servicebus_topic.id
+  max_delivery_count = 1
+}
+
 resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_manager" {
   name     = "${azurerm_servicebus_topic.servicebus_topic.name}-manager"
   topic_id = azurerm_servicebus_topic.servicebus_topic.id
@@ -192,4 +198,14 @@ resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_listene
 output "order_topic_connection_string" {
   value     = azurerm_servicebus_namespace.servicebus_namespace.default_primary_connection_string
   sensitive = true
+}
+
+output "order_topic_name" {
+  value     = azurerm_servicebus_topic.servicebus_topic.name
+  sensitive = false
+}
+
+output "order_topic_subscription" {
+  value     = azurerm_servicebus_subscription.topic_subscription.name
+  sensitive = false
 }
