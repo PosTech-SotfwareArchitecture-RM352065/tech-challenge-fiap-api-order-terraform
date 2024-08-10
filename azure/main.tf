@@ -126,28 +126,28 @@ data "azurerm_log_analytics_workspace" "log_workspace" {
 #   }
 # }
 
-data "azurerm_resource_group" "resource_group_node" {
-  name       = "fiap-tech-challenge-order-node-group"
-  depends_on = [azurerm_kubernetes_cluster.kubernetes_cluster]
-}
+# data "azurerm_resource_group" "resource_group_node" {
+#   name       = "fiap-tech-challenge-order-node-group"
+#   depends_on = [azurerm_kubernetes_cluster.kubernetes_cluster]
+# }
 
-resource "azurerm_public_ip" "order_public_ip" {
-  name                = "fiap-tech-challenge-order-public-ip"
-  resource_group_name = data.azurerm_resource_group.resource_group_node.name
-  location            = data.azurerm_resource_group.resource_group_node.location
-  allocation_method   = "Static"
-  domain_name_label   = "sanduba-order"
-  sku                 = "Standard"
+# resource "azurerm_public_ip" "order_public_ip" {
+#   name                = "fiap-tech-challenge-order-public-ip"
+#   resource_group_name = data.azurerm_resource_group.resource_group_node.name
+#   location            = data.azurerm_resource_group.resource_group_node.location
+#   allocation_method   = "Static"
+#   domain_name_label   = "sanduba-order"
+#   sku                 = "Standard"
 
-  tags = {
-    environment = azurerm_resource_group.resource_group.tags["environment"]
-  }
-}
+#   tags = {
+#     environment = azurerm_resource_group.resource_group.tags["environment"]
+#   }
+# }
 
-output "order_public_ip" {
-  value     = azurerm_public_ip.order_public_ip.ip_address
-  sensitive = false
-}
+# output "order_public_ip" {
+#   value     = azurerm_public_ip.order_public_ip.ip_address
+#   sensitive = false
+# }
 
 resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   name                = "fiap-tech-challenge-order-topic-namespace"
