@@ -241,7 +241,7 @@ resource "azurerm_container_app" "container_app" {
       }
 
       env {
-        name  = "ConnectionStrings__OrderDatabase_Value"
+        name  = "ConnectionStrings__OrderDatabase__Value"
         value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
       }
 
@@ -251,7 +251,7 @@ resource "azurerm_container_app" "container_app" {
       }
 
       env {
-        name  = "ConnectionStrings__CartDatabase_Value"
+        name  = "ConnectionStrings__CartDatabase__Value"
         value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
       }
 
