@@ -221,58 +221,58 @@ resource "azurerm_container_app" "container_app" {
       }
 
       env {
-        name  = "ASPNETCORE_JwtSettings__SecretKey"
+        name  = "JwtSettings__SecretKey"
         value = var.authentication_secret_key
       }
 
       env {
-        name  = "ASPNETCORE_JwtSettings__Issuer"
+        name  = "JwtSettings__Issuer"
         value = "Sanduba.Auth"
       }
 
       env {
-        name  = "ASPNETCORE_JwtSettings__Audience"
+        name  = "JwtSettings__Audience"
         value = "Users"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__OrderDatabase__Type"
+        name  = "ConnectionStrings__OrderDatabase__Type"
         value = "MSSQL"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__OrderDatabase_Value"
+        name  = "ConnectionStrings__OrderDatabase_Value"
         value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_order_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__CartDatabase__Type"
+        name  = "ConnectionStrings__CartDatabase__Type"
         value = "REDIS"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__CartDatabase_Value"
+        name  = "ConnectionStrings__CartDatabase_Value"
         value = azurerm_redis_cache.sanduba_cart_database.primary_connection_string
       }
 
       env {
-        name  = "ASPNETCORE_BrokerSettings__ConnectionString"
+        name  = "BrokerSettings__ConnectionString"
         value = azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
       }
 
       env {
-        name  = "ASPNETCORE_BrokerSettings__TopicName"
+        name  = "BrokerSettings__TopicName"
         value = azurerm_servicebus_topic.servicebus_topic.name
       }
 
       env {
-        name  = "ASPNETCORE_BrokerSettings__SubscriptionName"
+        name  = "BrokerSettings__SubscriptionName"
         value = azurerm_servicebus_subscription.topic_subscription.name
       }
 
       env {
-        name  = "ASPNETCORE_PaymentSettings__BaseUrl"
-        value = "https://sanduba-payment-function.azurewebsites.net"
+        name  = "PaymentSettings__BaseUrl"
+        value = "https://sanduba-payment-function.azurewebsites.net/api"
       }
     }
   }
