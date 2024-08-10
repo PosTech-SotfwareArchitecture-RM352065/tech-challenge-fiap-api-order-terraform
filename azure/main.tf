@@ -257,7 +257,7 @@ resource "azurerm_container_app" "container_app" {
 
       env {
         name  = "ASPNETCORE_BrokerSettings__ConnectionString"
-        value = data.azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
+        value = azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
       }
 
       env {
