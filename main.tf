@@ -31,6 +31,7 @@ module "aks-cluster" {
   main_resource_group_location = data.azurerm_resource_group.main_group.location
   environment                  = data.azurerm_resource_group.main_group.tags["environment"]
   home_ip_address   	         = var.home_ip_address
+  authentication_secret_key    = var.authentication_secret_key
 }
 
 module "github" {
@@ -39,35 +40,36 @@ module "github" {
   sanduba_order_database_connection_string = module.aks-cluster.order_database_connectionstring
   sanduba_order_topic_connection_string    = module.aks-cluster.order_topic_connection_string
   sanduba_cart_database_connection_string  = module.aks-cluster.cart_database_connectionstring
+  sanduba_order_url                        = module.aks-cluster.sanduba_order_url
 }
 
-data "azurerm_kubernetes_cluster" "k8s" {
-  depends_on          = [module.aks-cluster]
-  name                = "fiap-tech-challenge-order-cluster"
-  resource_group_name = "fiap-tech-challenge-order-group"
-}
+# data "azurerm_kubernetes_cluster" "k8s" {
+#   depends_on          = [module.aks-cluster]
+#   name                = "fiap-tech-challenge-order-cluster"
+#   resource_group_name = "fiap-tech-challenge-order-group"
+# }
 
-provider "kubernetes" {
-  host                   = data.azurerm_kubernetes_cluster.k8s.kube_config.0.host
-  client_certificate     = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.client_certificate)
-  client_key             = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.client_key)
-  cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.cluster_ca_certificate)
-}
+# provider "kubernetes" {
+#   host                   = data.azurerm_kubernetes_cluster.k8s.kube_config.0.host
+#   client_certificate     = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.client_certificate)
+#   client_key             = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.client_key)
+#   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.k8s.kube_config.0.cluster_ca_certificate)
+# }
 
-module "kubernetes-config" {
-  depends_on                      = [module.aks-cluster]
-  source                          = "./kubernetes"
-  kubeconfig                      = data.azurerm_kubernetes_cluster.k8s.kube_config_raw
-  order_database_connectionstring = module.aks-cluster.order_database_connectionstring
-  cart_database_connectionstring  = module.aks-cluster.cart_database_connectionstring
-  authentication_secret_key       = var.authentication_secret_key
-  app_payment_url                 = var.app_payment_url
-  order_topic_connection_string   = module.aks-cluster.order_topic_connection_string
-  order_topic_name                = module.aks-cluster.order_topic_name
-  order_topic_subscription        = module.aks-cluster.order_topic_subscription
-  order_public_ip                 = module.aks-cluster.order_public_ip
-}
+# module "kubernetes-config" {
+#   depends_on                      = [module.aks-cluster]
+#   source                          = "./kubernetes"
+#   kubeconfig                      = data.azurerm_kubernetes_cluster.k8s.kube_config_raw
+#   order_database_connectionstring = module.aks-cluster.order_database_connectionstring
+#   cart_database_connectionstring  = module.aks-cluster.cart_database_connectionstring
+#   authentication_secret_key       = var.authentication_secret_key
+#   app_payment_url                 = var.app_payment_url
+#   order_topic_connection_string   = module.aks-cluster.order_topic_connection_string
+#   order_topic_name                = module.aks-cluster.order_topic_name
+#   order_topic_subscription        = module.aks-cluster.order_topic_subscription
+#   order_public_ip                 = module.aks-cluster.order_public_ip
+# }
 
-output "kubeconfig_path" {
-  value = abspath("${path.root}/kubeconfig")
-}
+# output "kubeconfig_path" {
+#   value = abspath("${path.root}/kubeconfig")
+# }

@@ -15,3 +15,10 @@ resource "github_actions_organization_secret" "cart_database_connectionstring" {
   visibility      = "all"
   plaintext_value = var.sanduba_cart_database_connection_string
 }
+
+resource "github_actions_organization_variable" "sanduba_order_url" {
+  variable_name = "APP_ORDER_URL"
+  visibility    = "all"
+  value         = var.sanduba_order_url
+}
+

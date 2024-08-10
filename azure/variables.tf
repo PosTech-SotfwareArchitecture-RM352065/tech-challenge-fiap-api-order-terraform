@@ -21,3 +21,8 @@ variable "home_ip_address" {
   sensitive = true
   default   = ""
 }
+
+variable "authentication_secret_key" {
+  type      = string
+  sensitive = true
+}
