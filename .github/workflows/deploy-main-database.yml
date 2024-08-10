@@ -2,7 +2,7 @@ name: Release Database
 
 on: 
   workflow_run:
-    workflows: ["terraform-apply"]
+    workflows: ['terraform-apply']
     types:
       - completed
   workflow_dispatch:
